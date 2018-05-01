@@ -36,17 +36,17 @@ pub fn checksum_usb(bytes: &[u8]) -> u16 {
 }
 
 impl Digest {
-    pub fn new(poly: u16) -> Digest {
+    pub fn new(poly: u16, rfl: bool) -> Digest {
         Digest {
-            table: make_table(poly),
+            table: make_table(poly, rfl),
             initial: 0,
             value: 0
         }
     }
 
-    pub fn new_with_initial(poly: u16, initial: u16) -> Digest {
+    pub fn new_with_initial(poly: u16, initial: u16, rfl: bool) -> Digest {
         Digest {
-            table: make_table(poly),
+            table: make_table(poly, rfl),
             initial: initial,
             value: initial
         }

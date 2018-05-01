@@ -1,8 +1,11 @@
 /// Builds a CRC16 table using the reverse, reflected method
-pub fn make_table_crc16(poly: u16) -> [u16; 256] {
+pub fn make_table_crc16(poly: u16, rfl: bool) -> [u16; 256] {
     let mut table = [0u16; 256];
+    let mut byte: u16;
     for i in 0..256 {
-        let mut value = i as u16;
+        if true == rfl { byte = reflect_byte(i as u8) as u16; }else{ byte = i; }
+
+        let mut value = byte as u16;
         for _ in 0..8 {
             value = if (value & 1) == 1 {
                 (value >> 1) ^ poly
@@ -10,7 +13,10 @@ pub fn make_table_crc16(poly: u16) -> [u16; 256] {
                 value >> 1
             }
         }
-        table[i] = value;
+
+        if true == rfl { value = reflect_short(value);}
+
+        table[i as usize] = value;
     }
     table
 }
@@ -24,7 +30,7 @@ pub fn make_table_crc32(poly: u32, rfl: bool) -> [u32; 256] {
 
     for i in 0..256 {
 
-        if true == rfl { byte = reflect_byte(i); }else{ byte = i; }
+        if true == rfl { byte = reflect_byte(i as u8) as u32; }else{ byte = i; }
         
         // Shift the cuttent table value "i" to the top byte in the long
         let mut value: u32 = byte << 24;   //24=32 bit - 8
@@ -63,6 +69,20 @@ pub fn make_table_crc64(poly: u64) -> [u64; 256] {
 }
 
 /// Reflects a value of a 32 bit number
+pub fn reflect_short(mut value: u16) -> u16 {
+    let mut reflection: u16 = 0u16;
+    let bits = 16;
+
+    for i in 0..bits {
+        if (value & 0x01) == 1{
+            reflection |= 1 << ((bits-1) -i)
+        }
+        value = value >> 1;
+    }
+    reflection
+}
+
+/// Reflects a value of a 32 bit number
 pub fn reflect_long(mut value: u32) -> u32 {
    	let mut reflection: u32 = 0u32;
     let bits = 32;
@@ -77,9 +97,9 @@ pub fn reflect_long(mut value: u32) -> u32 {
 }
 
 /// Reflects the lease significant byte.
-pub fn reflect_byte(input: u32) -> u32
+pub fn reflect_byte(input: u8) -> u8
 {
-   	let mut reflection: u32 = 0u32;
+   	let mut reflection: u8 = 0u8;
     let bits = 8;
     let mut value = input;
 
